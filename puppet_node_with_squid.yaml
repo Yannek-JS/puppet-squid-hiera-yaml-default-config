@@ -1,0 +1,79 @@
+---
+squid::acls:
+  'localnet':
+    type: 'src'
+    entries:
+      - '0.0.0.1-0.255.255.255'
+      - '10.0.0.0/8'
+      - '100.64.0.0/10'
+      - '169.254.0.0/16'
+      - '172.16.0.0/12'
+      - '192.168.0.0/16'
+      - 'fc00::/7'
+      - 'fe80::/10'
+  'SSL_ports':
+    type: 'port'
+    entries: 
+      - 443
+  'Safe_ports':
+    type: 'port'
+    entries:
+      - '80'
+      - '21'
+      - '443'
+      - '70'
+      - '210'
+      - '1025-65535'
+      - '280'
+      - '488'
+      - '591'
+      - '777'
+  'CONNECT':
+    type: 'method'
+    entries: 
+      - 'CONNECT'  
+
+squid::http_access:
+  '!Safe_ports':
+    action: 'deny'
+  'CONNECT !SSL_ports':
+    action: 'deny'
+  'localhost manager':
+    action: 'allow'
+  'manager':
+    action: 'deny'
+  'localnet':
+    action: 'allow'
+  'localhost':
+    action: 'allow'
+  'all':
+    action: 'deny'
+
+squid::http_ports: 
+  '3128':
+    options: ''
+
+squid::coredump_dir: '/var/spool/squid'
+
+squid::refresh_patterns:
+  '^ftp:':
+    max:     10080
+    min:     1440
+    percent: 20
+    order:   '60'
+  '^gopher:':
+    max:     1440
+    min:     1440
+    percent: 0
+    order:   '61'
+  '(/cgi-bin/|\?)':
+    case_sensitive: false
+    max:            0
+    min:            0
+    percent:        0
+    order:          '62'
+  '.':
+    max:     4320
+    min:     0
+    percent: 20
+    order:   '63'
